@@ -1,0 +1,2445 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport"
+content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+
+<title>TETORIS</title>
+
+<style>
+*{
+    box-sizing:border-box;
+    margin:0;
+    padding:0;
+    -webkit-tap-highlight-color:transparent;
+}
+
+:root{
+    --bg:#101522;
+    --panel:#1c2538;
+    --button:#5865f2;
+    --text:#fff;
+    --muted:#aeb8d0;
+    --board:#090d15;
+    --cell:#171e2d;
+}
+
+body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:Arial,sans-serif;
+    min-height:100vh;
+    overflow:hidden;
+}
+
+button{
+    border:0;
+    color:white;
+    font-weight:bold;
+    cursor:pointer;
+}
+
+.screen{
+    display:none;
+    width:100%;
+    height:100vh;
+    min-height:100vh;
+    align-items:center;
+    justify-content:center;
+    flex-direction:column;
+}
+
+.screen.active{
+    display:flex;
+}
+
+/* ================= MENU ================= */
+
+#menu{
+    background:
+    radial-gradient(circle at top,#344d82 0%,var(--bg) 65%);
+    text-align:center;
+    padding:20px;
+}
+
+.logo{
+    font-size:52px;
+    font-weight:900;
+    letter-spacing:4px;
+    text-shadow:0 5px 15px #000;
+}
+
+.logo span{
+    color:#ff4f91;
+}
+
+.subtitle{
+    color:var(--muted);
+    margin:5px 0 18px;
+}
+
+.mainCharacter{
+    width:145px;
+    height:145px;
+    object-fit:cover;
+    border-radius:25px;
+    border:4px solid white;
+    box-shadow:0 10px 30px #0008;
+    margin-bottom:20px;
+}
+
+.menuButton{
+    display:block;
+    width:240px;
+    padding:14px;
+    margin:8px auto;
+    border-radius:15px;
+    background:var(--button);
+    font-size:17px;
+    box-shadow:0 5px 15px #0005;
+}
+
+.menuButton:active{
+    transform:scale(.95);
+}
+
+/* ================= COMMON ================= */
+
+.title{
+    font-size:30px;
+    margin-bottom:20px;
+    text-align:center;
+}
+
+.backButton{
+    background:#3b4459;
+    padding:11px 28px;
+    border-radius:12px;
+    margin-top:18px;
+}
+
+/* ================= WORLD ================= */
+
+#world{
+    background:var(--bg);
+    padding:15px;
+}
+
+.worldMap{
+    width:320px;
+    max-height:70vh;
+    overflow-y:auto;
+    padding:15px;
+}
+
+.levelNode{
+    position:relative;
+    width:120px;
+    min-height:75px;
+    margin:12px auto;
+    border-radius:20px;
+    background:var(--button);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    flex-direction:column;
+    font-size:18px;
+    box-shadow:0 5px 12px #0005;
+}
+
+.levelNode:nth-child(even){
+    margin-left:30px;
+}
+
+.levelNode:nth-child(odd){
+    margin-right:30px;
+}
+
+.levelNode.locked{
+    background:#303748;
+    color:#777;
+}
+
+.levelNode.completed{
+    border:3px solid #ffd54f;
+}
+
+.levelStars{
+    font-size:14px;
+    margin-top:4px;
+}
+
+/* ================= CHARACTER ================= */
+
+#characters{
+    background:var(--bg);
+    padding:20px;
+}
+
+.characterGrid{
+    display:grid;
+    grid-template-columns:repeat(2,140px);
+    gap:15px;
+}
+
+.characterCard{
+    background:var(--panel);
+    border-radius:18px;
+    padding:12px;
+    text-align:center;
+    border:2px solid transparent;
+}
+
+.characterCard.selected{
+    border-color:#ffd54f;
+}
+
+.characterCard.locked{
+    opacity:.45;
+}
+
+.characterCard img{
+    width:100px;
+    height:100px;
+    border-radius:15px;
+    object-fit:cover;
+    margin:auto;
+}
+
+.characterName{
+    margin-top:8px;
+}
+
+.characterStatus{
+    font-size:12px;
+    color:#aeb8d0;
+    margin-top:4px;
+}
+
+/* ================= THEMES ================= */
+
+#themes{
+    background:var(--bg);
+    padding:20px;
+}
+
+.themeGrid{
+    display:grid;
+    grid-template-columns:repeat(2,135px);
+    gap:12px;
+}
+
+.themeCard{
+    padding:20px 10px;
+    border-radius:16px;
+    background:var(--panel);
+    text-align:center;
+    border:2px solid transparent;
+}
+
+.themeCard.selected{
+    border-color:#ffd54f;
+}
+
+/* ================= SETTINGS ================= */
+
+#settings{
+    background:var(--bg);
+    padding:20px;
+    text-align:center;
+}
+
+.settingBox{
+    width:290px;
+    background:var(--panel);
+    border-radius:20px;
+    padding:20px;
+}
+
+.settingBox select{
+    width:100%;
+    padding:12px;
+    border-radius:10px;
+    margin-top:10px;
+}
+
+/* ================= GAME ================= */
+
+#game{
+    background:var(--bg);
+    justify-content:flex-start;
+    padding-top:10px;
+}
+
+.gameTop{
+    width:310px;
+    display:flex;
+    justify-content:space-between;
+    margin-bottom:5px;
+}
+
+.info{
+    font-size:13px;
+    line-height:1.5;
+}
+
+.combo{
+    color:#ffd54f;
+    font-weight:bold;
+}
+
+.powerContainer{
+    width:310px;
+    margin-bottom:6px;
+}
+
+.powerTop{
+    display:flex;
+    justify-content:space-between;
+    font-size:12px;
+}
+
+.powerBar{
+    width:100%;
+    height:9px;
+    background:#303747;
+    border-radius:10px;
+    overflow:hidden;
+}
+
+.powerFill{
+    height:100%;
+    width:0%;
+    background:linear-gradient(90deg,#40c4ff,#ff4f91);
+    transition:width:.15s;
+}
+
+#board{
+    width:300px;
+    height:600px;
+    display:grid;
+    grid-template-columns:repeat(10,1fr);
+    grid-template-rows:repeat(20,1fr);
+    gap:1px;
+    padding:2px;
+    background:var(--board);
+    border:3px solid #4a5670;
+    border-radius:6px;
+}
+
+.cell{
+    background:var(--cell);
+    border-radius:2px;
+}
+
+/* block colors */
+
+.c1{background:#ff4f81;}
+.c2{background:#40c4ff;}
+.c3{background:#ffd54f;}
+.c4{background:#69f0ae;}
+.c5{background:#b388ff;}
+.c6{background:#ff8a65;}
+.c7{background:#00e5ff;}
+
+/* ghost */
+
+.ghost{
+    opacity:.25;
+    box-shadow:inset 0 0 0 2px white;
+}
+
+/* controls */
+
+.controls{
+    display:flex;
+    gap:9px;
+    margin-top:8px;
+}
+
+.control{
+    width:65px;
+    height:45px;
+    border-radius:13px;
+    background:var(--button);
+    font-size:21px;
+}
+
+.control:active{
+    transform:scale(.92);
+}
+
+.powerControls{
+    display:flex;
+    gap:6px;
+    margin-top:6px;
+}
+
+.powerButton{
+    padding:6px 9px;
+    border-radius:8px;
+    background:#30394e;
+    font-size:11px;
+}
+
+.powerButton:disabled{
+    opacity:.35;
+}
+
+.exitButton{
+    background:#363d50;
+    padding:6px 22px;
+    border-radius:9px;
+    margin-top:5px;
+}
+
+@media(max-height:700px){
+
+    #board{
+        width:255px;
+        height:510px;
+    }
+
+    .gameTop,
+    .powerContainer{
+        width:265px;
+    }
+
+    .control{
+        height:40px;
+    }
+}
+
+/* ================= RESULT ================= */
+
+#result{
+    background:
+    radial-gradient(circle,#334c7e,#101522 70%);
+    text-align:center;
+    padding:20px;
+}
+
+.resultBox{
+    width:300px;
+    background:var(--panel);
+    padding:25px;
+    border-radius:22px;
+    box-shadow:0 10px 30px #0008;
+}
+
+.resultCharacter{
+    width:100px;
+    height:100px;
+    border-radius:20px;
+    object-fit:cover;
+    margin-bottom:10px;
+}
+
+.resultStars{
+    font-size:31px;
+    margin:15px;
+    letter-spacing:4px;
+    color:#ffd54f;
+}
+
+.resultButton{
+    display:block;
+    width:100%;
+    padding:12px;
+    margin-top:8px;
+    border-radius:12px;
+    background:var(--button);
+}
+</style>
+</head>
+
+<body>
+
+<!-- ================= MENU ================= -->
+
+<section id="menu" class="screen active">
+
+<img
+id="menuCharacter"
+class="mainCharacter"
+src="https://cdn.phototourl.com/member/2026-10-06-d7e5c062-cb2e-4cf8-b929-efdff9793c06.jpg">
+
+<div class="logo">
+TE<span>TO</span>RIS
+</div>
+
+<div class="subtitle">
+Teto Falling Blocks
+</div>
+
+<button class="menuButton" onclick="showWorld()">
+▶ START
+</button>
+
+<button class="menuButton" onclick="showCharacters()">
+👤 CHARACTER
+</button>
+
+<button class="menuButton" onclick="showThemes()">
+🎨 THEME
+</button>
+
+<button class="menuButton" onclick="showSettings()">
+⚙ SETTING
+</button>
+
+</section>
+
+
+<!-- ================= WORLD ================= -->
+
+<section id="world" class="screen">
+
+<div class="title">
+🗺️ WORLD
+</div>
+
+<div id="worldMap" class="worldMap"></div>
+
+<button class="backButton" onclick="showMenu()">
+← BACK
+</button>
+
+</section>
+
+
+<!-- ================= CHARACTERS ================= -->
+
+<section id="characters" class="screen">
+
+<div class="title">
+👤 CHARACTER
+</div>
+
+<div id="characterGrid" class="characterGrid"></div>
+
+<button class="backButton" onclick="showMenu()">
+← BACK
+</button>
+
+</section>
+
+
+<!-- ================= THEMES ================= -->
+
+<section id="themes" class="screen">
+
+<div class="title">
+🎨 THEME
+</div>
+
+<div id="themeGrid" class="themeGrid"></div>
+
+<button class="backButton" onclick="showMenu()">
+← BACK
+</button>
+
+</section>
+
+
+<!-- ================= SETTINGS ================= -->
+
+<section id="settings" class="screen">
+
+<div class="title">
+⚙️ SETTING
+</div>
+
+<div class="settingBox">
+
+<div id="languageLabel">
+Language
+</div>
+
+<select id="language" onchange="changeLanguage()">
+<option value="id">Indonesia</option>
+<option value="en">English</option>
+<option value="jv">Jawa</option>
+<option value="su">Sunda</option>
+<option value="ja">日本語</option>
+</select>
+
+</div>
+
+<button class="backButton" onclick="showMenu()">
+← BACK
+</button>
+
+</section>
+
+
+<!-- ================= GAME ================= -->
+
+<section id="game" class="screen">
+
+<div class="gameTop">
+
+<div class="info">
+LEVEL:
+<span id="gameLevel">1</span><br>
+
+SCORE:
+<span id="score">0</span>
+</div>
+
+<div class="info">
+SPEED:
+<span id="speedText">1</span><br>
+
+COMBO:
+<span id="combo" class="combo">0</span>
+</div>
+
+</div>
+
+<div class="powerContainer">
+
+<div class="powerTop">
+<span>⚡ TETO POWER</span>
+<span id="powerText">0%</span>
+</div>
+
+<div class="powerBar">
+<div id="powerFill" class="powerFill"></div>
+</div>
+
+</div>
+
+<div id="board"></div>
+
+<div class="controls">
+
+<button class="control" onclick="moveLeft()">
+◀
+</button>
+
+<button class="control" onclick="hardDrop()">
+▼
+</button>
+
+<button class="control" onclick="rotatePiece()">
+↻
+</button>
+
+<button class="control" onclick="moveRight()">
+▶
+</button>
+
+</div>
+
+<div class="powerControls">
+
+<button
+id="bombButton"
+class="powerButton"
+onclick="usePower('bomb')">
+💣 BOMB
+</button>
+
+<button
+id="lightningButton"
+class="powerButton"
+onclick="usePower('lightning')">
+⚡ LINE
+</button>
+
+<button
+id="freezeButton"
+class="powerButton"
+onclick="usePower('freeze')">
+❄ FREEZE
+</button>
+
+</div>
+
+<button class="exitButton" onclick="exitGame()">
+EXIT
+</button>
+
+</section>
+
+
+<!-- ================= RESULT ================= -->
+
+<section id="result" class="screen">
+
+<div class="resultBox">
+
+<img
+id="resultCharacter"
+class="resultCharacter"
+src="https://cdn.phototourl.com/member/2026-10-06-d7e5c062-cb2e-4cf8-b929-efdff9793c06.jpg">
+
+<h2 id="resultTitle">
+GAME OVER
+</h2>
+
+<div id="resultStars" class="resultStars">
+☆☆☆
+</div>
+
+<div>
+SCORE:
+<span id="finalScore">0</span>
+</div>
+
+<button class="resultButton" onclick="restartGame()">
+PLAY AGAIN
+</button>
+
+<button class="resultButton" onclick="showWorld()">
+WORLD MAP
+</button>
+
+</div>
+
+</section>
+
+
+<script>
+
+/* =====================================================
+   CONFIG
+===================================================== */
+
+const W = 10;
+const H = 20;
+
+const SPEED_TIME = 45500;
+
+
+/* =====================================================
+   DATA
+===================================================== */
+
+const pieces = [
+
+{
+name:"T",
+shape:[
+[0,1,0],
+[1,1,1]
+]
+},
+
+{
+name:"L",
+shape:[
+[1,0],
+[1,0],
+[1,1]
+]
+},
+
+{
+name:"I",
+shape:[
+[1,1,1,1]
+]
+},
+
+{
+name:"O",
+shape:[
+[1,1],
+[1,1]
+]
+},
+
+{
+name:"Z",
+shape:[
+[1,1,0],
+[0,1,1]
+]
+},
+
+{
+name:"R",
+shape:[
+[1,0,0],
+[1,1,1],
+[0,0,1]
+]
+}
+
+];
+
+
+const characters = [
+
+{
+id:"teto",
+name:"Kasane Teto",
+img:"https://cdn.phototourl.com/member/2026-10-06-d7e5c062-cb2e-4cf8-b929-efdff9793c06.jpg",
+unlock:1
+},
+
+{
+id:"miku",
+name:"Character 2",
+img:"https://cdn.phototourl.com/member/2026-10-06-d7e5c062-cb2e-4cf8-b929-efdff9793c06.jpg",
+unlock:5
+},
+
+{
+id:"rin",
+name:"Character 3",
+img:"https://cdn.phototourl.com/member/2026-10-06-d7e5c062-cb2e-4cf8-b929-efdff9793c06.jpg",
+unlock:10
+}
+
+];
+
+
+const themes = [
+
+{
+id:"teto",
+name:"Teto",
+bg:"#101522",
+panel:"#1c2538",
+button:"#5865f2",
+cell:"#171e2d",
+board:"#090d15"
+},
+
+{
+id:"neon",
+name:"Neon",
+bg:"#080b14",
+panel:"#131a2a",
+button:"#00aaff",
+cell:"#101828",
+board:"#05070c"
+},
+
+{
+id:"sakura",
+name:"Sakura",
+bg:"#24141e",
+panel:"#38202d",
+button:"#e85d9e",
+cell:"#291923",
+board:"#120a10"
+},
+
+{
+id:"pixel",
+name:"Pixel",
+bg:"#171717",
+panel:"#252525",
+button:"#55aa55",
+cell:"#202020",
+board:"#080808"
+},
+
+{
+id:"cyber",
+name:"Cyber",
+bg:"#081515",
+panel:"#102929",
+button:"#00bfa5",
+cell:"#102020",
+board:"#040b0b"
+},
+
+{
+id:"dark",
+name:"Dark",
+bg:"#080808",
+panel:"#181818",
+button:"#555",
+cell:"#111",
+board:"#030303"
+}
+
+];
+
+
+/* =====================================================
+   GAME VARIABLES
+===================================================== */
+
+let board = [];
+let cells = [];
+
+let piece = null;
+
+let level = 1;
+let score = 0;
+
+let combo = 0;
+
+let power = 0;
+
+let speedLevel = 1;
+let fallTime = 900;
+
+let lastFall = 0;
+let lastSpeed = 0;
+
+let gameRunning = false;
+let animationId = null;
+
+let freezeUntil = 0;
+
+let selectedCharacter =
+localStorage.getItem("tetoCharacter") || "teto";
+
+let selectedTheme =
+localStorage.getItem("tetoTheme") || "teto";
+
+let language =
+localStorage.getItem("tetoLanguage") || "id";
+
+
+/* =====================================================
+   LANGUAGE
+===================================================== */
+
+const lang = {
+
+id:{
+start:"▶ MULAI",
+character:"👤 KARAKTER",
+theme:"🎨 TEMA",
+setting:"⚙ PENGATURAN",
+world:"🗺️ DUNIA",
+back:"← KEMBALI",
+exit:"KELUAR",
+again:"MAIN LAGI",
+worldMap:"🗺️ DUNIA",
+language:"Bahasa"
+},
+
+en:{
+start:"▶ START",
+character:"👤 CHARACTER",
+theme:"🎨 THEME",
+setting:"⚙ SETTING",
+world:"🗺️ WORLD",
+back:"← BACK",
+exit:"EXIT",
+again:"PLAY AGAIN",
+worldMap:"🗺️ WORLD",
+language:"Language"
+},
+
+jv:{
+start:"▶ MULAI",
+character:"👤 KARAKTER",
+theme:"🎨 TEMA",
+setting:"⚙ PENGATURAN",
+world:"🗺️ DONYA",
+back:"← BALI",
+exit:"METU",
+again:"MAIN MANEH",
+worldMap:"🗺️ DONYA",
+language:"Basa"
+},
+
+su:{
+start:"▶ MIMITI",
+character:"👤 KARAKTER",
+theme:"🎨 TEMA",
+setting:"⚙ SETELAN",
+world:"🗺️ DUNYA",
+back:"← BALIK",
+exit:"KALUAR",
+again:"MAIN DEUI",
+worldMap:"🗺️ DUNYA",
+language:"Basa"
+},
+
+ja:{
+start:"▶ スタート",
+character:"👤 キャラクター",
+theme:"🎨 テーマ",
+setting:"⚙ 設定",
+world:"🗺️ ワールド",
+back:"← 戻る",
+exit:"終了",
+again:"もう一度",
+worldMap:"🗺️ ワールド",
+language:"言語"
+}
+
+};
+
+
+/* =====================================================
+   SCREEN
+===================================================== */
+
+function show(id){
+
+document
+.querySelectorAll(".screen")
+.forEach(x=>{
+x.classList.remove("active");
+});
+
+document
+.getElementById(id)
+.classList.add("active");
+
+}
+
+
+/* =====================================================
+   MENU
+===================================================== */
+
+function showMenu(){
+
+stopGame();
+
+show("menu");
+
+}
+
+
+/* =====================================================
+   WORLD
+===================================================== */
+
+function showWorld(){
+
+stopGame();
+
+show("world");
+
+buildWorld();
+
+}
+
+
+function unlockedLevel(){
+
+return Number(
+localStorage.getItem("tetoUnlocked") || 1
+);
+
+}
+
+
+function buildWorld(){
+
+const map =
+document.getElementById("worldMap");
+
+map.innerHTML="";
+
+const unlocked =
+unlockedLevel();
+
+for(let i=1;i<=10;i++){
+
+const node =
+document.createElement("button");
+
+node.className="levelNode";
+
+if(i > unlocked){
+
+node.classList.add("locked");
+
+node.innerHTML =
+"🔒 LEVEL "+i;
+
+node.disabled=true;
+
+}else{
+
+if(i < unlocked)
+node.classList.add("completed");
+
+let stars =
+localStorage.getItem(
+"tetoStars_"+i
+) || 0;
+
+node.innerHTML =
+"⭐ LEVEL "+i+
+"<div class='levelStars'>"+
+"★".repeat(stars)+
+"☆".repeat(3-stars)+
+"</div>";
+
+node.onclick =
+()=>startGame(i);
+
+}
+
+map.appendChild(node);
+
+}
+
+}
+
+
+/* =====================================================
+   CHARACTERS
+===================================================== */
+
+function showCharacters(){
+
+stopGame();
+
+show("characters");
+
+buildCharacters();
+
+}
+
+
+function buildCharacters(){
+
+const grid =
+document.getElementById("characterGrid");
+
+grid.innerHTML="";
+
+const unlocked =
+unlockedLevel();
+
+characters.forEach(c=>{
+
+const card =
+document.createElement("div");
+
+card.className="characterCard";
+
+if(c.id===selectedCharacter)
+card.classList.add("selected");
+
+if(unlocked < c.unlock)
+card.classList.add("locked");
+
+card.innerHTML=`
+
+<img src="${c.img}">
+
+<div class="characterName">
+${c.name}
+</div>
+
+<div class="characterStatus">
+${
+unlocked >= c.unlock
+? "SELECT"
+: "🔒 Level "+c.unlock
+}
+</div>
+`;
+
+if(unlocked >= c.unlock){
+
+card.onclick=()=>{
+
+selectedCharacter=c.id;
+
+localStorage.setItem(
+"tetoCharacter",
+c.id
+);
+
+updateCharacter();
+
+buildCharacters();
+
+};
+
+}
+
+grid.appendChild(card);
+
+});
+
+}
+
+
+function updateCharacter(){
+
+const c =
+characters.find(
+x=>x.id===selectedCharacter
+);
+
+if(!c) return;
+
+document.getElementById(
+"menuCharacter"
+).src=c.img;
+
+document.getElementById(
+"resultCharacter"
+).src=c.img;
+
+}
+
+
+/* =====================================================
+   THEMES
+===================================================== */
+
+function showThemes(){
+
+stopGame();
+
+show("themes");
+
+buildThemes();
+
+}
+
+
+function buildThemes(){
+
+const grid =
+document.getElementById("themeGrid");
+
+grid.innerHTML="";
+
+themes.forEach(t=>{
+
+const card =
+document.createElement("button");
+
+card.className="themeCard";
+
+if(t.id===selectedTheme)
+card.classList.add("selected");
+
+card.innerHTML=
+"🎨<br><br>"+t.name;
+
+card.onclick=()=>{
+
+selectedTheme=t.id;
+
+localStorage.setItem(
+"tetoTheme",
+t.id
+);
+
+applyTheme();
+
+buildThemes();
+
+};
+
+grid.appendChild(card);
+
+});
+
+}
+
+
+function applyTheme(){
+
+const t =
+themes.find(
+x=>x.id===selectedTheme
+);
+
+if(!t) return;
+
+document.documentElement.style.setProperty(
+"--bg",t.bg
+);
+
+document.documentElement.style.setProperty(
+"--panel",t.panel
+);
+
+document.documentElement.style.setProperty(
+"--button",t.button
+);
+
+document.documentElement.style.setProperty(
+"--cell",t.cell
+);
+
+document.documentElement.style.setProperty(
+"--board",t.board
+);
+
+}
+
+
+/* =====================================================
+   SETTINGS
+===================================================== */
+
+function showSettings(){
+
+stopGame();
+
+show("settings");
+
+document.getElementById(
+"language"
+).value=language;
+
+}
+
+
+function changeLanguage(){
+
+language =
+document.getElementById(
+"language"
+).value;
+
+localStorage.setItem(
+"tetoLanguage",
+language
+);
+
+applyLanguage();
+
+}
+
+
+function applyLanguage(){
+
+const t=lang[language];
+
+const buttons =
+document.querySelectorAll(
+"#menu .menuButton"
+);
+
+if(buttons[0])
+buttons[0].textContent=t.start;
+
+if(buttons[1])
+buttons[1].textContent=t.character;
+
+if(buttons[2])
+buttons[2].textContent=t.theme;
+
+if(buttons[3])
+buttons[3].textContent=t.setting;
+
+document.getElementById(
+"languageLabel"
+).textContent=t.language;
+
+}
+
+
+/* =====================================================
+   BOARD
+===================================================== */
+
+function createBoard(){
+
+board=[];
+
+for(let y=0;y<H;y++){
+
+board[y]=[];
+
+for(let x=0;x<W;x++){
+
+board[y][x]=0;
+
+}
+
+}
+
+}
+
+
+function createCells(){
+
+const el=
+document.getElementById("board");
+
+el.innerHTML="";
+
+cells=[];
+
+for(let i=0;i<W*H;i++){
+
+const cell=
+document.createElement("div");
+
+cell.className="cell";
+
+el.appendChild(cell);
+
+cells.push(cell);
+
+}
+
+}
+
+
+/* =====================================================
+   PIECE
+===================================================== */
+
+function newPiece(){
+
+const p=
+pieces[
+Math.floor(
+Math.random()*pieces.length
+)
+];
+
+return{
+
+shape:p.shape.map(
+r=>[...r]
+),
+
+x:Math.floor(
+(W-p.shape[0].length)/2
+),
+
+y:0,
+
+color:
+Math.floor(Math.random()*7)+1
+
+};
+
+}
+
+
+/* =====================================================
+   COLLISION
+===================================================== */
+
+function collision(
+p,
+dx=0,
+dy=0
+){
+
+for(
+let y=0;
+y<p.shape.length;
+y++
+){
+
+for(
+let x=0;
+x<p.shape[y].length;
+x++
+){
+
+if(!p.shape[y][x])
+continue;
+
+const nx=
+p.x+x+dx;
+
+const ny=
+p.y+y+dy;
+
+if(
+nx<0 ||
+nx>=W ||
+ny>=H
+)
+return true;
+
+if(
+ny>=0 &&
+board[ny][nx]
+)
+return true;
+
+}
+
+}
+
+return false;
+
+}
+
+
+/* =====================================================
+   MOVEMENT
+===================================================== */
+
+function moveLeft(){
+
+if(!gameRunning)return;
+
+if(!collision(piece,-1,0)){
+
+piece.x--;
+
+render();
+
+}
+
+}
+
+
+function moveRight(){
+
+if(!gameRunning)return;
+
+if(!collision(piece,1,0)){
+
+piece.x++;
+
+render();
+
+}
+
+}
+
+
+function softDrop(){
+
+if(!gameRunning)return;
+
+if(!collision(piece,0,1)){
+
+piece.y++;
+
+}else{
+
+lockPiece();
+
+}
+
+render();
+
+}
+
+
+function hardDrop(){
+
+if(!gameRunning)return;
+
+let distance=0;
+
+while(!collision(piece,0,1)){
+
+piece.y++;
+
+distance++;
+
+}
+
+score+=distance*2;
+
+lockPiece();
+
+render();
+
+}
+
+
+/* =====================================================
+   ROTATION
+===================================================== */
+
+function rotateMatrix(m){
+
+const h=m.length;
+const w=m[0].length;
+
+const result=[];
+
+for(let x=0;x<w;x++){
+
+const row=[];
+
+for(let y=h-1;y>=0;y--){
+
+row.push(m[y][x]);
+
+}
+
+result.push(row);
+
+}
+
+return result;
+
+}
+
+
+function rotatePiece(){
+
+if(!gameRunning)return;
+
+const old=
+piece.shape.map(r=>[...r]);
+
+piece.shape=
+rotateMatrix(piece.shape);
+
+if(collision(piece)){
+
+piece.x++;
+
+if(collision(piece)){
+
+piece.x-=2;
+
+if(collision(piece)){
+
+piece.x++;
+
+piece.shape=old;
+
+}
+
+}
+
+}
+
+render();
+
+}
+
+
+/* =====================================================
+   GHOST
+===================================================== */
+
+function ghostY(){
+
+let y=piece.y;
+
+while(!collisionAt(
+piece,
+piece.x,
+y+1
+)){
+
+y++;
+
+}
+
+return y;
+
+}
+
+
+function collisionAt(
+p,
+px,
+py
+){
+
+for(
+let y=0;
+y<p.shape.length;
+y++
+){
+
+for(
+let x=0;
+x<p.shape[y].length;
+x++
+){
+
+if(!p.shape[y][x])
+continue;
+
+const nx=px+x;
+const ny=py+y;
+
+if(
+nx<0 ||
+nx>=W ||
+ny>=H
+)
+return true;
+
+if(
+ny>=0 &&
+board[ny][nx]
+)
+return true;
+
+}
+
+}
+
+return false;
+
+}
+
+
+/* =====================================================
+   LOCK + LINE
+===================================================== */
+
+function lockPiece(){
+
+for(
+let y=0;
+y<piece.shape.length;
+y++
+){
+
+for(
+let x=0;
+x<piece.shape[y].length;
+x++
+){
+
+if(!piece.shape[y][x])
+continue;
+
+const bx=
+piece.x+x;
+
+const by=
+piece.y+y;
+
+if(by>=0){
+
+board[by][bx]=
+piece.color;
+
+}
+
+}
+
+}
+
+score +=
+250*level;
+
+const lines=
+clearLines();
+
+if(lines>0){
+
+combo++;
+
+const comboBonus=
+combo*300*level;
+
+score+=
+comboBonus;
+
+power=Math.min(
+100,
+power+lines*15
+);
+
+}else{
+
+combo=0;
+
+}
+
+piece=newPiece();
+
+if(collision(piece)){
+
+endGame();
+
+}
+
+updateInfo();
+
+}
+
+
+/* =====================================================
+   CLEAR LINES
+===================================================== */
+
+function clearLines(){
+
+let lines=0;
+
+for(
+let y=H-1;
+y>=0;
+y--
+){
+
+let full=true;
+
+for(let x=0;x<W;x++){
+
+if(board[y][x]===0){
+
+full=false;
+break;
+
+}
+
+}
+
+if(full){
+
+board.splice(y,1);
+
+board.unshift(
+new Array(W).fill(0)
+);
+
+lines++;
+
+y++;
+
+}
+
+}
+
+return lines;
+
+}
+
+
+/* =====================================================
+   POWER
+===================================================== */
+
+function updatePower(){
+
+document.getElementById(
+"powerText"
+).textContent=
+Math.floor(power)+"%";
+
+document.getElementById(
+"powerFill"
+).style.width=
+power+"%";
+
+const disabled=
+power<100 || !gameRunning;
+
+document.getElementById(
+"bombButton"
+).disabled=disabled;
+
+document.getElementById(
+"lightningButton"
+).disabled=disabled;
+
+document.getElementById(
+"freezeButton"
+).disabled=disabled;
+
+}
+
+
+function usePower(type){
+
+if(!gameRunning || power<100)
+return;
+
+if(type==="bomb"){
+
+const cx=
+piece.x+1;
+
+const cy=
+piece.y+1;
+
+for(let y=-1;y<=1;y++){
+
+for(let x=-1;x<=1;x++){
+
+const bx=cx+x;
+const by=cy+y;
+
+if(
+bx>=0 &&
+bx<W &&
+by>=0 &&
+by<H
+){
+
+board[by][bx]=0;
+
+}
+
+}
+
+}
+
+}
+
+else if(type==="lightning"){
+
+const row=
+Math.max(
+0,
+Math.min(
+H-1,
+piece.y
+));
+
+board[row]=
+new Array(W).fill(0);
+
+}
+
+else if(type==="freeze"){
+
+freezeUntil=
+performance.now()+5000;
+
+}
+
+power=0;
+
+render();
+
+updatePower();
+
+}
+
+
+/* =====================================================
+   RENDER
+===================================================== */
+
+function render(){
+
+if(!cells.length)return;
+
+for(
+let i=0;
+i<cells.length;
+i++
+){
+
+cells[i].className="cell";
+
+}
+
+
+/* board */
+
+for(let y=0;y<H;y++){
+
+for(let x=0;x<W;x++){
+
+const c=board[y][x];
+
+if(c){
+
+cells[
+y*W+x
+].classList.add(
+"c"+c
+);
+
+}
+
+}
+
+}
+
+
+/* ghost */
+
+if(piece){
+
+const gy=ghostY();
+
+for(
+let y=0;
+y<piece.shape.length;
+y++
+){
+
+for(
+let x=0;
+x<piece.shape[y].length;
+x++
+){
+
+if(!piece.shape[y][x])
+continue;
+
+const bx=
+piece.x+x;
+
+const by=
+gy+y;
+
+if(
+bx>=0 &&
+bx<W &&
+by>=0 &&
+by<H
+){
+
+const cell=
+cells[by*W+bx];
+
+cell.classList.add(
+"c"+piece.color
+);
+
+cell.classList.add(
+"ghost"
+);
+
+}
+
+}
+
+}
+
+}
+
+
+/* piece */
+
+if(piece){
+
+for(
+let y=0;
+y<piece.shape.length;
+y++
+){
+
+for(
+let x=0;
+x<piece.shape[y].length;
+x++
+){
+
+if(!piece.shape[y][x])
+continue;
+
+const bx=
+piece.x+x;
+
+const by=
+piece.y+y;
+
+if(
+bx>=0 &&
+bx<W &&
+by>=0 &&
+by<H
+){
+
+cells[
+by*W+bx
+].className=
+"cell c"+
+piece.color;
+
+}
+
+}
+
+}
+
+}
+
+}
+
+
+/* =====================================================
+   INFO
+===================================================== */
+
+function updateInfo(){
+
+document.getElementById(
+"score"
+).textContent=
+score.toLocaleString();
+
+document.getElementById(
+"combo"
+).textContent=
+combo;
+
+document.getElementById(
+"speedText"
+).textContent=
+speedLevel;
+
+updatePower();
+
+}
+
+
+/* =====================================================
+   SPEED
+===================================================== */
+
+function increaseSpeed(){
+
+speedLevel++;
+
+fallTime=
+Math.max(
+100,
+900-(speedLevel-1)*70
+);
+
+document.getElementById(
+"speedText"
+).textContent=
+speedLevel;
+
+}
+
+
+/* =====================================================
+   GAME LOOP
+===================================================== */
+
+function gameLoop(time){
+
+if(!gameRunning){
+
+animationId=null;
+return;
+
+}
+
+if(!lastFall)
+lastFall=time;
+
+if(!lastSpeed)
+lastSpeed=time;
+
+
+/* freeze */
+
+let actualFall=
+fallTime;
+
+if(time<freezeUntil)
+actualFall=
+fallTime*2;
+
+
+/* falling */
+
+if(
+time-lastFall>=actualFall
+){
+
+softDrop();
+
+lastFall=time;
+
+}
+
+
+/* speed */
+
+if(
+time-lastSpeed>=SPEED_TIME
+){
+
+increaseSpeed();
+
+lastSpeed=time;
+
+}
+
+animationId=
+requestAnimationFrame(
+gameLoop
+);
+
+}
+
+
+/* =====================================================
+   START GAME
+===================================================== */
+
+function startGame(lvl){
+
+level=lvl;
+
+score=0;
+
+combo=0;
+
+power=0;
+
+speedLevel=1;
+
+fallTime=900;
+
+freezeUntil=0;
+
+createBoard();
+
+piece=newPiece();
+
+gameRunning=true;
+
+const now=
+performance.now();
+
+lastFall=now;
+
+lastSpeed=now;
+
+document.getElementById(
+"gameLevel"
+).textContent=
+level;
+
+updateInfo();
+
+show("game");
+
+render();
+
+if(animationId===null){
+
+animationId=
+requestAnimationFrame(
+gameLoop
+);
+
+}
+
+}
+
+
+/* =====================================================
+   STOP
+===================================================== */
+
+function stopGame(){
+
+gameRunning=false;
+
+if(animationId!==null){
+
+cancelAnimationFrame(
+animationId
+);
+
+animationId=null;
+
+}
+
+}
+
+
+/* =====================================================
+   EXIT
+===================================================== */
+
+function exitGame(){
+
+stopGame();
+
+showWorld();
+
+}
+
+
+/* =====================================================
+   STARS
+===================================================== */
+
+function calculateStars(){
+
+const star3=
+10000+(level-1)*1000;
+
+const star2=
+8000+(level-1)*1000;
+
+const star1=
+5000+(level-1)*1000;
+
+if(score>=star3)
+return 3;
+
+if(score>=star2)
+return 2;
+
+if(score>=star1)
+return 1;
+
+return 0;
+
+}
+
+
+/* =====================================================
+   GAME OVER
+===================================================== */
+
+function endGame(){
+
+if(!gameRunning)return;
+
+stopGame();
+
+const stars=
+calculateStars();
+
+let text="";
+
+for(let i=0;i<3;i++){
+
+text +=
+i<stars ? "★" : "☆";
+
+}
+
+document.getElementById(
+"resultStars"
+).textContent=text;
+
+document.getElementById(
+"finalScore"
+).textContent=
+score.toLocaleString();
+
+document.getElementById(
+"resultTitle"
+).textContent=
+stars>0
+? "LEVEL CLEAR!"
+: "GAME OVER";
+
+
+/* save stars */
+
+const oldStars=
+Number(
+localStorage.getItem(
+"tetoStars_"+level
+)||0
+);
+
+if(stars>oldStars){
+
+localStorage.setItem(
+"tetoStars_"+level,
+stars
+);
+
+}
+
+
+/* unlock */
+
+if(stars>0 && level<10){
+
+const unlocked=
+unlockedLevel();
+
+if(level>=unlocked){
+
+localStorage.setItem(
+"tetoUnlocked",
+level+1
+);
+
+}
+
+}
+
+show("result");
+
+}
+
+
+/* =====================================================
+   RESTART
+===================================================== */
+
+function restartGame(){
+
+startGame(level);
+
+}
+
+
+/* =====================================================
+   KEYBOARD
+===================================================== */
+
+document.addEventListener(
+"keydown",
+e=>{
+
+if(!gameRunning)return;
+
+if(e.key==="ArrowLeft"){
+
+e.preventDefault();
+moveLeft();
+
+}
+
+else if(e.key==="ArrowRight"){
+
+e.preventDefault();
+moveRight();
+
+}
+
+else if(e.key==="ArrowDown"){
+
+e.preventDefault();
+softDrop();
+
+}
+
+else if(e.key==="ArrowUp"){
+
+e.preventDefault();
+rotatePiece();
+
+}
+
+else if(e.key===" "){
+
+e.preventDefault();
+hardDrop();
+
+}
+
+}
+);
+
+
+/* =====================================================
+   INITIALIZE
+===================================================== */
+
+createCells();
+
+applyTheme();
+
+applyLanguage();
+
+updateCharacter();
+
+updatePower();
+
+</script>
+
+</body>
+</html>
